@@ -1,0 +1,36 @@
+.button {
+  min-height: 46px;
+  padding: 0 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button:focus-visible {
+  outline: 3px solid #a7c7ff;
+  outline-offset: 3px;
+}
+
+.button--primary {
+  color: #ffffff;
+  background: #2056d8;
+}
+
+.button--primary:hover {
+  background: #1745b5;
+}
+
+.button--secondary {
+  color: #172033;
+  background: transparent;
+  border-color: #ccd3df;
+}
