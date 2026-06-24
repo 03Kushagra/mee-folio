@@ -35,6 +35,7 @@ export class GpuParticleEngine {
   private pointerVelocity = { x: 0, y: 0 };
   private pointerMoving = 0;
   private pointerActivationTime = Number.POSITIVE_INFINITY;
+  private attractionCursor = Math.random();
   private lastPointerEventTime: number | null = null;
   private lastPointerMovementTime = Number.NEGATIVE_INFINITY;
   private homePositions = new Float32Array();
@@ -237,6 +238,16 @@ export class GpuParticleEngine {
 
       this.pointerVelocity.x *= velocityDecay;
       this.pointerVelocity.y *= velocityDecay;
+    }
+
+    if (this.pointerMoving > 0) {
+      const pointerSpeed = Math.hypot(
+        this.pointerVelocity.x,
+        this.pointerVelocity.y,
+      );
+      const cursorSpeed = 0.16 + Math.min(pointerSpeed, 3.5) * 0.07;
+
+      this.attractionCursor = (this.attractionCursor + delta * cursorSpeed) % 1;
     }
 
     this.updateParticles(frameTime * 0.001, delta);
@@ -467,6 +478,16 @@ export class GpuParticleEngine {
       this.simulationProgram,
       "uPointerMoving",
       this.pointerMoving,
+    );
+    this.setUniform1f(
+      this.simulationProgram,
+      "uAttractionCursor",
+      this.attractionCursor,
+    );
+    this.setUniform1f(
+      this.simulationProgram,
+      "uAttractionLimitRatio",
+      Math.min(1, 100 / this.particleCount),
     );
     this.setUniform1f(this.simulationProgram, "uTime", time);
     this.setUniform2f(

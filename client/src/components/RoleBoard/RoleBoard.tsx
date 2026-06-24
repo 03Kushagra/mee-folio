@@ -65,6 +65,7 @@ const cardOffsets = [
   { x: 17, y: 10 },
   { x: -17, y: -10 },
 ];
+const IDLE_RECOVERY_DELAY = 5_000;
 
 function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(Math.max(value, minimum), maximum);
@@ -164,7 +165,7 @@ export function RoleBoard() {
         setIsAutoPaused(false);
         recoveryTimerRef.current = null;
       }, 2_250);
-    }, 15_000);
+    }, IDLE_RECOVERY_DELAY);
   };
 
   const resetPositions = () => {

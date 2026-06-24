@@ -6,6 +6,8 @@ layout(location = 1) in vec2 aVelocity;
 layout(location = 2) in vec2 aHomePosition;
 
 uniform float uAspect;
+uniform float uAttractionCursor;
+uniform float uAttractionLimitRatio;
 uniform float uDelta;
 uniform float uPointerMoving;
 uniform float uPointerStrength;
@@ -64,6 +66,16 @@ void main() {
   float pointerSpeed = length(uPointerVelocity);
   float movingAmount = uPointerMoving;
   float stationaryAmount = 1.0 - uPointerMoving;
+  float attractionSeed = hash(particleId + 113.0);
+  float attractionDistance = abs(attractionSeed - uAttractionCursor);
+  attractionDistance = min(attractionDistance, 1.0 - attractionDistance);
+  float attractionWindow = max(uAttractionLimitRatio * 0.5, 0.001);
+  float attractionEligibility =
+    1.0 - smoothstep(
+      attractionWindow,
+      attractionWindow + 0.018,
+      attractionDistance
+    );
   vec2 gravityOffset = uPointer - position;
   float gravityDistance = max(length(gravityOffset), 0.001);
   vec2 gravityDirection = gravityOffset / gravityDistance;
@@ -88,11 +100,23 @@ void main() {
     * smoothstep(0.04, 0.7, pointerSpeed)
     * (1.0 - smoothstep(0.12, 0.82, gravityDistance))
     * uPointerStrength;
+  float clumpPull = mix(0.52, 1.0, attractionEligibility);
   float movingGravityForce =
     movingGravity
+    * clumpPull
     * 4.8
     / (0.14 + gravityDistance * gravityDistance * 3.2);
   velocity += gravityDirection * movingGravityForce * uDelta;
+
+  float innerClumpZone =
+    movingAmount
+    * (1.0 - attractionEligibility)
+    * (1.0 - smoothstep(0.045, 0.18, gravityDistance))
+    * uPointerStrength;
+  velocity -=
+    gravityDirection
+    * (max(dot(velocity, gravityDirection), 0.0) * 0.84 + 2.1 * uDelta)
+    * innerClumpZone;
   velocity += pointerTangent
     * fieldInfluence
     * uPointerStrength

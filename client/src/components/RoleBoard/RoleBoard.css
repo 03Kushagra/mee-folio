@@ -2,7 +2,7 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   overflow: hidden;
   background: transparent;
   opacity: 0;
@@ -185,7 +185,7 @@
 
 @media (max-width: 700px) {
   .role-board {
-    min-height: calc(100vh - 92px);
+    min-height: 100vh;
   }
 
   .role-board__anchor {
