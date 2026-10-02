@@ -13,7 +13,7 @@ type Point = {
   y: number;
 };
 
-type Role = {
+export type Role = {
   id: string;
   label: string;
   tone: "blue" | "orange" | "purple" | "teal" | "yellow";
@@ -34,7 +34,7 @@ type CycleMotion = {
   roleId: string;
 };
 
-const roles: Role[] = [
+export const roles: Role[] = [
   { id: "ai-code-evaluator", label: "AI Code Evaluator", tone: "purple" },
   { id: "frontend-engineer", label: "Frontend Engineer", tone: "blue" },
   { id: "full-stack-developer", label: "Full-stack Developer", tone: "orange" },
@@ -71,7 +71,25 @@ function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(Math.max(value, minimum), maximum);
 }
 
-export function RoleBoard() {
+export type RoleBoardProps = {
+  /** Called with the role id whenever a new card reaches the front of the deck. */
+  onFrontRoleChange?: (roleId: string) => void;
+  /** Called when the visitor starts dragging a card. */
+  onCardDragStart?: (roleId: string) => void;
+  /** Called when a card lands (end of a drag or of an automatic cycle). Rect is in viewport coordinates. */
+  onCardLand?: (roleId: string, rect: DOMRect) => void;
+  /** When false, cards can't be dragged or moved and simply keep cycling. Defaults to true. */
+  interactive?: boolean;
+};
+
+export function RoleBoard({
+  interactive = true,
+  onCardDragStart,
+  onCardLand,
+  onFrontRoleChange,
+}: RoleBoardProps = {}) {
+  const callbacksRef = useRef({ onCardDragStart, onCardLand, onFrontRoleChange });
+  callbacksRef.current = { onCardDragStart, onCardLand, onFrontRoleChange };
   const boardRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const initializedRef = useRef(false);
@@ -234,6 +252,20 @@ export function RoleBoard() {
   }, [stackOrder]);
 
   useEffect(() => {
+    callbacksRef.current.onFrontRoleChange?.(stackOrder[0]);
+  }, [stackOrder]);
+
+  const emitLand = (roleId: string) => {
+    const card = boardRef.current?.querySelector<HTMLElement>(
+      `[data-role-id="${roleId}"]`,
+    );
+
+    if (card) {
+      callbacksRef.current.onCardLand?.(roleId, card.getBoundingClientRect());
+    }
+  };
+
+  useEffect(() => {
     if (!isReady || isAutoPaused || cycleMotion) {
       return;
     }
@@ -262,6 +294,7 @@ export function RoleBoard() {
         cycleCommitTimerRef.current = window.setTimeout(() => {
           setCycleMotion(null);
           cycleCommitTimerRef.current = null;
+          emitLand(frontRoleId);
         }, 760);
       }, 720);
     }, 5_000);
@@ -350,6 +383,7 @@ export function RoleBoard() {
     };
     setDraggingRoleId(id);
     bringToFront(id);
+    callbacksRef.current.onCardDragStart?.(id);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
@@ -405,6 +439,8 @@ export function RoleBoard() {
 
     if (!drag.hasMoved && event.type !== "pointercancel") {
       centerRole(drag.id, event.currentTarget);
+    } else {
+      emitLand(drag.id);
     }
   };
 
@@ -466,6 +502,7 @@ export function RoleBoard() {
         "role-board",
         isReady ? "role-board--ready" : "",
         isRecovering ? "role-board--recovering" : "",
+        interactive ? "" : "role-board--static",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -500,7 +537,9 @@ export function RoleBoard() {
 
         return (
           <button
-            aria-label={`Move ${role.label}. Use drag or arrow keys.`}
+            aria-label={
+              interactive ? `Move ${role.label}. Use drag or arrow keys.` : role.label
+            }
             className={[
               "role-card",
               `role-card--${role.tone}`,
@@ -512,13 +551,14 @@ export function RoleBoard() {
               .join(" ")}
             data-role-id={role.id}
             key={role.id}
-            onKeyDown={(event) => handleKeyDown(event, role.id)}
-            onLostPointerCapture={stopDragging}
-            onPointerCancel={stopDragging}
-            onPointerDown={(event) => handlePointerDown(event, role.id)}
-            onPointerMove={handlePointerMove}
-            onPointerUp={stopDragging}
+            onKeyDown={interactive ? (event) => handleKeyDown(event, role.id) : undefined}
+            onLostPointerCapture={interactive ? stopDragging : undefined}
+            onPointerCancel={interactive ? stopDragging : undefined}
+            onPointerDown={interactive ? (event) => handlePointerDown(event, role.id) : undefined}
+            onPointerMove={interactive ? handlePointerMove : undefined}
+            onPointerUp={interactive ? stopDragging : undefined}
             style={style}
+            tabIndex={interactive ? undefined : -1}
             type="button"
           >
             <span>{role.label}</span>
@@ -526,13 +566,15 @@ export function RoleBoard() {
         );
       })}
 
-      <button
-        className="role-board__reset"
-        onClick={resetPositions}
-        type="button"
-      >
-        Reset cards
-      </button>
+      {interactive ? (
+        <button
+          className="role-board__reset"
+          onClick={resetPositions}
+          type="button"
+        >
+          Reset cards
+        </button>
+      ) : null}
     </div>
   );
 }

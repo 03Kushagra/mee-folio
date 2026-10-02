@@ -214,3 +214,8 @@
     transition: none;
   }
 }
+
+.role-board--static .role-card {
+  cursor: default;
+  pointer-events: none;
+}

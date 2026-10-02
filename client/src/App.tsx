@@ -1,8 +1,12 @@
 import { motion, type Variants } from "motion/react";
 import { useEffect, useState } from "react";
-import { HeroParticles } from "./components/HeroParticles/HeroParticles";
+import { AboutSection } from "./components/About/AboutSection";
+import { ContactSection } from "./components/Contact/ContactSection";
+import { EvaluatorSection } from "./components/Evaluator/EvaluatorSection";
+import { EducationSection } from "./components/Experience/EducationSection";
+import { ExperienceSection } from "./components/Experience/ExperienceSection";
+import { BlueprintHero } from "./components/BlueprintHero/BlueprintHero";
 import { ProjectShowcase } from "./components/ProjectShowcase/ProjectShowcase";
-import { RoleBoard } from "./components/RoleBoard/RoleBoard";
 
 const sectionReveal: Variants = {
   hidden: {
@@ -21,8 +25,62 @@ const sectionReveal: Variants = {
   },
 };
 
+const navItems = [
+  { href: "#about", id: "about", label: "About" },
+  { href: "#work", id: "work", label: "Work" },
+  { href: "#contact", id: "contact", label: "Contact" },
+];
+
+const sectionIds = ["home", "about", "work", "ai-work", "experience", "education", "contact"];
+
+// File-style names shown in the toolbar breadcrumb for each section.
+const sectionFiles: Record<string, string> = {
+  "ai-work": "ai-work.tsx",
+  about: "about.tsx",
+  contact: "contact.tsx",
+  education: "education.tsx",
+  experience: "experience.tsx",
+  home: "hero.tsx",
+  work: "projects.tsx",
+};
+
+function useActiveSection(ids: string[]) {
+  const [activeId, setActiveId] = useState(ids[0]);
+
+  useEffect(() => {
+    const visible = new Map<string, number>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          visible.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+        let best = "";
+        let bestRatio = 0;
+        for (const [id, ratio] of visible) {
+          if (ratio > bestRatio) {
+            best = id;
+            bestRatio = ratio;
+          }
+        }
+        if (bestRatio > 0) setActiveId(best);
+      },
+      { threshold: [0, 0.15, 0.3, 0.5, 0.7, 1] },
+    );
+
+    for (const id of ids) {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    }
+
+    return () => observer.disconnect();
+  }, [ids]);
+
+  return activeId;
+}
+
 function App() {
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const activeSection = useActiveSection(sectionIds);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -62,14 +120,30 @@ function App() {
         className={`site-header ${isHeaderHidden ? "site-header--hidden" : ""}`}
       >
         <a className="brand" href="#home" aria-label="Mee-folio home">
-          Mee-folio
+          <span aria-hidden="true" className="brand__mark" />
+          <span>Mee-folio</span>
+          <span aria-hidden="true" className="brand__path">
+            / {sectionFiles[activeSection] ?? "hero.tsx"}
+          </span>
         </a>
 
         <nav aria-label="Main navigation">
-          <a href="#about">About</a>
-          <a href="#work">Work</a>
-          <a href="#contact">Contact</a>
+          {navItems.map((item) => (
+            <a
+              aria-current={activeSection === item.id ? "true" : undefined}
+              className={activeSection === item.id ? "nav-link nav-link--active" : "nav-link"}
+              href={item.href}
+              key={item.id}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
+
+        <a className="toolbar-cta" href="#contact">
+          <span aria-hidden="true" className="toolbar-cta__dot" />
+          Open to work
+        </a>
       </header>
 
       <motion.main
@@ -84,8 +158,7 @@ function App() {
           initial={{ opacity: 0, y: 18 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <HeroParticles />
-          <RoleBoard />
+          <BlueprintHero />
         </motion.section>
 
         <motion.section
@@ -93,11 +166,10 @@ function App() {
           id="about"
           initial="hidden"
           variants={sectionReveal}
-          viewport={{ amount: 0.35, once: true }}
+          viewport={{ amount: 0.2, once: true }}
           whileInView="visible"
         >
-          <p className="eyebrow">About</p>
-          <h2>A short introduction will live here.</h2>
+          <AboutSection />
         </motion.section>
 
         <motion.section
@@ -113,14 +185,46 @@ function App() {
 
         <motion.section
           className="content-section"
+          id="ai-work"
+          initial="hidden"
+          variants={sectionReveal}
+          viewport={{ amount: 0.15, once: true }}
+          whileInView="visible"
+        >
+          <EvaluatorSection />
+        </motion.section>
+
+        <motion.section
+          className="content-section"
+          id="experience"
+          initial="hidden"
+          variants={sectionReveal}
+          viewport={{ amount: 0.15, once: true }}
+          whileInView="visible"
+        >
+          <ExperienceSection />
+        </motion.section>
+
+        <motion.section
+          className="content-section"
+          id="education"
+          initial="hidden"
+          variants={sectionReveal}
+          viewport={{ amount: 0.15, once: true }}
+          whileInView="visible"
+        >
+          <EducationSection />
+        </motion.section>
+
+        <motion.section
+          className="content-section"
           id="contact"
           initial="hidden"
           variants={sectionReveal}
-          viewport={{ amount: 0.35, once: true }}
+          viewport={{ amount: 0.15, once: true }}
           whileInView="visible"
         >
-          <p className="eyebrow">Contact</p>
-          <h2>Let&apos;s build something thoughtful.</h2>
+          <ContactSection />
         </motion.section>
       </motion.main>
 

@@ -1,0 +1,140 @@
+.blueprint-hero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: inherit;
+  overflow: hidden;
+  background-color: #f7f8fb;
+}
+
+.blueprint-hero__background,
+.blueprint-hero__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.blueprint-hero__background {
+  z-index: 0;
+}
+
+/* Above the panel and badge so the lens can reveal their boxes too. */
+.blueprint-hero__overlay {
+  z-index: 160;
+}
+
+.blueprint-hero__background canvas,
+.blueprint-hero__overlay canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.blueprint-hero .role-board {
+  z-index: 2;
+  min-height: inherit;
+}
+
+.lens-badge {
+  position: absolute;
+  z-index: 150;
+  top: 40px;
+  right: 24px;
+  display: flex;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.lens-badge span {
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  color: #ffffff;
+  background: #172033;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.66rem;
+}
+
+.lens-badge span:nth-child(2) {
+  background: #d946ef;
+}
+
+.lens-panel {
+  position: absolute;
+  z-index: 150;
+  bottom: 40px;
+  left: 48px;
+  width: 330px;
+  overflow: hidden;
+  border: 1px solid #d6dbe5;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 20px 40px -24px rgb(23 32 51 / 35%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+.lens-panel__tabs {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid #e1e5ec;
+  color: #8a92a6;
+  background: #f4f6fa;
+}
+
+.lens-panel__tab--active {
+  color: #172033;
+  font-weight: 700;
+}
+
+.lens-panel__body {
+  padding: 0.6rem 0.8rem 0.7rem;
+}
+
+.lens-panel p {
+  max-width: none;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lens-panel__selector {
+  color: #7c3aed;
+}
+
+.lens-panel__line {
+  padding-left: 1rem;
+  border-radius: 3px;
+  transition: background-color 600ms ease;
+}
+
+.lens-panel__line--changed {
+  background: rgb(250 204 21 / 35%);
+  transition: none;
+}
+
+.lens-panel__property {
+  color: #c2410c;
+}
+
+.lens-panel__value {
+  color: #172033;
+}
+
+@media (max-width: 900px) {
+  .lens-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .lens-badge {
+    top: auto;
+    right: auto;
+    bottom: 24px;
+    left: 34px;
+  }
+}

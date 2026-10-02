@@ -1,0 +1,227 @@
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  align-items: center;
+  gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+.about h2 {
+  max-width: 16ch;
+  font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+  line-height: 1.02;
+}
+
+.about__headline-accent {
+  display: block;
+  color: #8a92a6;
+}
+
+.about__paragraph {
+  margin: 1.4rem 0 0;
+  color: #596174;
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+.about__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 2.25rem 0 0;
+}
+
+.about__fact {
+  padding: 0.95rem 1.1rem;
+  border: 1px solid #e1e5ec;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 70%);
+}
+
+.about__fact dt {
+  margin-bottom: 0.3rem;
+  color: #8a92a6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.about__fact dd {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* ---------- Halftone portrait ---------- */
+
+.halftone {
+  position: relative;
+  width: min(100%, 440px);
+  margin: 0 0 0 auto;
+  padding: 26px;
+}
+
+.halftone__marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Crop marks in each corner, like a printer's proof sheet. */
+.halftone__marks::before {
+  position: absolute;
+  inset: 8px;
+  content: "";
+  background:
+    linear-gradient(#172033, #172033) top left / 14px 1px,
+    linear-gradient(#172033, #172033) top left / 1px 14px,
+    linear-gradient(#172033, #172033) top right / 14px 1px,
+    linear-gradient(#172033, #172033) top right / 1px 14px,
+    linear-gradient(#172033, #172033) bottom left / 14px 1px,
+    linear-gradient(#172033, #172033) bottom left / 1px 14px,
+    linear-gradient(#172033, #172033) bottom right / 14px 1px,
+    linear-gradient(#172033, #172033) bottom right / 1px 14px;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+}
+
+.halftone__label {
+  position: absolute;
+  color: #8a92a6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.halftone__label--top {
+  top: 4px;
+  left: 30px;
+}
+
+.halftone__label--side {
+  top: 50%;
+  right: 13px;
+  transform: translate(50%, -50%) rotate(90deg);
+}
+
+.halftone__registration {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #172033;
+  border-radius: 50%;
+  opacity: 0.5;
+  transform: translate(-50%, 50%);
+}
+
+.halftone__registration::before,
+.halftone__registration::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 1px;
+  background: #172033;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.halftone__registration::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.halftone__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 30% 20%, #ffffff, transparent 60%),
+    #f1efe9;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 80%) inset,
+    0 30px 60px -28px rgb(23 32 51 / 45%),
+    0 12px 24px -16px rgb(23 32 51 / 30%);
+  cursor: none;
+  transition: box-shadow 400ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.halftone__frame:focus-visible {
+  outline: 3px solid #2056d8;
+  outline-offset: 6px;
+}
+
+.halftone__frame--developed {
+  cursor: pointer;
+  transform: rotate(-1.2deg);
+}
+
+.halftone__frame--error {
+  cursor: default;
+}
+
+.halftone__frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.halftone__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #8a92a6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}
+
+.halftone__caption {
+  margin-top: 1rem;
+  color: #8a92a6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.halftone__hint--touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .halftone__frame {
+    cursor: pointer;
+  }
+
+  .halftone__hint--hover {
+    display: none;
+  }
+
+  .halftone__hint--touch {
+    display: inline;
+  }
+}
+
+@media (max-width: 860px) {
+  .about {
+    grid-template-columns: 1fr;
+  }
+
+  .halftone {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .about__facts {
+    grid-template-columns: 1fr;
+  }
+}

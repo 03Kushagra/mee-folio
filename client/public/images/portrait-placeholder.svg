@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cfd6e4"/>
+    </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a92a6"/>
+      <stop offset="1" stop-color="#2a3246"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#303a52"/>
+      <stop offset="1" stop-color="#121826"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <path d="M120 1000c10-190 120-300 280-300s270 110 280 300z" fill="url(#body)"/>
+  <rect x="345" y="560" width="110" height="170" rx="40" fill="#3a4359"/>
+  <ellipse cx="400" cy="420" rx="165" ry="200" fill="url(#skin)"/>
+  <path d="M232 400c-6-150 80-240 172-240 110 0 180 80 168 230-30-70-90-110-170-110-80 0-140 40-170 120z" fill="#141a28"/>
+  <text x="400" y="960" font-family="monospace" font-size="26" fill="#ffffff" fill-opacity=".55" text-anchor="middle">replace with your photo</text>
+</svg>
