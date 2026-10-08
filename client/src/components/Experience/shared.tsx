@@ -1,8 +1,4 @@
-import { profile } from "../../content/profile";
-
-export type Role = (typeof profile.experience)[number];
-export type Study = (typeof profile.education)[number];
-export type Certification = (typeof profile.certifications)[number];
+export type { Certification, Role, Study } from "../../content/types";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

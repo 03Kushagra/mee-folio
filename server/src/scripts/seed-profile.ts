@@ -1,15 +1,31 @@
 /**
- * Single place for personal content shown on the site.
- * Everything marked TODO is placeholder content — replace it with your own.
+ * One-time setup: puts starter content into the database so the site has something
+ * to show. After this, edit everything from the /admin page.
+ *
+ *   npm run seed:profile --workspace server            (only if there is no profile yet)
+ *   npm run seed:profile --workspace server -- --force (overwrite the current profile)
+ *
+ * The content below is placeholder text (marked TODO) — replace it in the admin page.
  */
+import mongoose from "mongoose";
+import { env } from "../config/env.js";
+import { Profile } from "../models/profile.model.js";
 
-export const profile = {
+const starter = {
   name: "Kushagra",
+  heroRoles: [
+    { label: "AI Code Evaluator", tone: "purple" },
+    { label: "Frontend Engineer", tone: "blue" },
+    { label: "Full-stack Developer", tone: "orange" },
+    { label: "Creative Technologist", tone: "teal" },
+    { label: "Product-minded Engineer", tone: "yellow" },
+  ],
   // TODO: drop your photo into client/public/images/ and point this at it
   // (a portrait-ish crop with a plain background works best for the halftone effect).
   photoUrl: "/images/portrait-placeholder.svg",
   photoAlt: "Portrait of Kushagra",
   location: "India",
+  noticePeriod: "15 days",
   timeZone: "Asia/Kolkata",
 
   // TODO: rewrite in your own voice.
@@ -27,6 +43,8 @@ export const profile = {
   contact: {
     email: "agrawal.kushagra@outlook.com",
     emailSubject: "Hello from your portfolio",
+    // TODO: your LinkedIn profile, e.g. https://www.linkedin.com/in/your-name
+    linkedinUrl: "",
     // TODO: replace client/public/resume.pdf with your real resume
     resumeUrl: "/resume.pdf",
     resumeFileName: "Kushagra-Resume.pdf",
@@ -148,4 +166,24 @@ export const profile = {
       url: "#",
     },
   ],
-} as const;
+};
+
+const force = process.argv.includes("--force");
+
+if (!env.mongoUri) {
+  console.error("MONGO_URI / MONGODB_URI is not set in server/.env");
+  process.exit(1);
+}
+
+await mongoose.connect(env.mongoUri);
+try {
+  const existing = await Profile.findOne({ key: "main" });
+  if (existing && !force) {
+    console.log("A profile already exists. Nothing changed (use --force to overwrite).");
+  } else {
+    await Profile.findOneAndUpdate({ key: "main" }, { $set: { ...starter, key: "main" } }, { upsert: true });
+    console.log(existing ? "Profile overwritten with starter content." : "Starter profile created.");
+  }
+} finally {
+  await mongoose.disconnect();
+}

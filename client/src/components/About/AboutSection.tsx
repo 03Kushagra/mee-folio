@@ -1,5 +1,5 @@
 import { motion, type Variants } from "motion/react";
-import { profile } from "../../content/profile";
+import { useProfile } from "../../content/ProfileContext";
 import { HalftonePortrait } from "./HalftonePortrait";
 import "./AboutSection.css";
 
@@ -18,6 +18,7 @@ const itemReveal: Variants = {
 };
 
 export function AboutSection() {
+  const profile = useProfile();
   return (
     <div className="about">
       <div className="about__copy">

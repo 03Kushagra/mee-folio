@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit --pretty false",
-    "projects:move-last": "tsx src/scripts/move-project-last.ts"
+    "projects:move-last": "tsx src/scripts/move-project-last.ts",
+    "seed:profile": "tsx src/scripts/seed-profile.ts",
+    "projects:import": "tsx src/scripts/import-projects.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

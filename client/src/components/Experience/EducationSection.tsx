@@ -1,6 +1,6 @@
 import { motion, type Variants } from "motion/react";
 import type { CSSProperties } from "react";
-import { profile } from "../../content/profile";
+import { useProfile } from "../../content/ProfileContext";
 import { ACCENTS, formatMonth, initials, SectionHeading } from "./shared";
 import "./Experience.css";
 
@@ -21,6 +21,7 @@ const badgeReveal: Variants = {
 
 /** Education & certifications section: studies as levels completed, certifications as unlocked achievements. */
 export function EducationSection() {
+  const profile = useProfile();
   // Oldest first: level 1 is where it started.
   const levels = [...profile.education].reverse();
   const certifications = [...profile.certifications].sort((a, b) => b.date.localeCompare(a.date));

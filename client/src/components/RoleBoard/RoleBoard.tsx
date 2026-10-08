@@ -34,28 +34,22 @@ type CycleMotion = {
   roleId: string;
 };
 
-export const roles: Role[] = [
-  { id: "ai-code-evaluator", label: "AI Code Evaluator", tone: "purple" },
-  { id: "frontend-engineer", label: "Frontend Engineer", tone: "blue" },
-  { id: "full-stack-developer", label: "Full-stack Developer", tone: "orange" },
-  { id: "creative-technologist", label: "Creative Technologist", tone: "teal" },
-  { id: "product-engineer", label: "Product-minded Engineer", tone: "yellow" },
-];
-
-const initialStackOrder = roles.map((role) => role.id);
+/** Turns the roles from the profile (label + colour) into cards with stable ids. */
+export function toRoleCards(roles: ReadonlyArray<{ label: string; tone: Role["tone"] }>): Role[] {
+  const seen = new Map<string, number>();
+  return roles.map((role) => {
+    const base = role.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "role";
+    const count = (seen.get(base) ?? 0) + 1;
+    seen.set(base, count);
+    return { id: count > 1 ? `${base}-${count}` : base, label: role.label, tone: role.tone };
+  });
+}
 
 function createLayerOrder(order: string[]) {
   return Object.fromEntries(
     order.map((roleId, index) => [roleId, order.length - index]),
   );
 }
-
-const initialLayerOrder: Record<string, number> = Object.fromEntries(
-  initialStackOrder.map((roleId, index) => [
-    roleId,
-    initialStackOrder.length - index,
-  ]),
-);
 
 const cardRotations = [-1.5, 2.8, -3.2, 1.9, -2.4];
 const cardOffsets = [
@@ -80,14 +74,19 @@ export type RoleBoardProps = {
   onCardLand?: (roleId: string, rect: DOMRect) => void;
   /** When false, cards can't be dragged or moved and simply keep cycling. Defaults to true. */
   interactive?: boolean;
+  /** The cards, front first. Give the component a new `key` when this list changes. */
+  roles: Role[];
 };
 
 export function RoleBoard({
+  roles,
   interactive = true,
   onCardDragStart,
   onCardLand,
   onFrontRoleChange,
-}: RoleBoardProps = {}) {
+}: RoleBoardProps) {
+  const [initialStackOrder] = useState(() => roles.map((role) => role.id));
+  const [initialLayerOrder] = useState(() => createLayerOrder(initialStackOrder));
   const callbacksRef = useRef({ onCardDragStart, onCardLand, onFrontRoleChange });
   callbacksRef.current = { onCardDragStart, onCardLand, onFrontRoleChange };
   const boardRef = useRef<HTMLDivElement>(null);
@@ -128,8 +127,8 @@ export function RoleBoard({
       order.map((roleId, index) => [
         roleId,
         {
-          x: deckX + cardOffsets[index].x,
-          y: deckY + cardOffsets[index].y,
+          x: deckX + cardOffsets[index % cardOffsets.length].x,
+          y: deckY + cardOffsets[index % cardOffsets.length].y,
         },
       ]),
     );
@@ -518,7 +517,7 @@ export function RoleBoard({
           cycleMotion?.roleId === role.id ? cycleMotion.phase : null;
         const isDragging = draggingRoleId === role.id;
         const stackIndex = Math.max(0, stackOrder.indexOf(role.id));
-        const restingRotation = cardRotations[stackIndex];
+        const restingRotation = cardRotations[stackIndex % cardRotations.length];
         const style = {
           transform:
             cyclePhase === "lift"

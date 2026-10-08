@@ -1,6 +1,7 @@
 import { motion, type Variants } from "motion/react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { profile } from "../../content/profile";
+import { useProfile } from "../../content/ProfileContext";
+import type { Profile } from "../../content/types";
 import { looksLikePlaceholderName } from "./nameCheck";
 import "./ContactSection.css";
 
@@ -60,10 +61,10 @@ function mailProviders(to: string, subject: string) {
   ] as const satisfies ReadonlyArray<{ href: string; id: ProviderId; label: string }>;
 }
 
-function triggerResumeDownload() {
+function triggerResumeDownload(contact: Profile["contact"]) {
   const link = document.createElement("a");
-  link.href = profile.contact.resumeUrl;
-  link.download = profile.contact.resumeFileName;
+  link.href = contact.resumeUrl;
+  link.download = contact.resumeFileName || "Resume.pdf";
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -89,7 +90,7 @@ function formatTime(timeZone: string) {
 /* ---------------- Email card ---------------- */
 
 function EmailCard({ visitorEmail }: { visitorEmail: string }) {
-  const { email, emailSubject } = profile.contact;
+  const { email, emailSubject } = useProfile().contact;
   const [copied, setCopied] = useState(false);
   const [lastUsed, setLastUsed] = useState<ProviderId | null>(
     () => readStorage(PROVIDER_KEY) as ProviderId | null,
@@ -151,6 +152,7 @@ type Visitor = { name: string };
 type Status = "idle" | "submitting";
 
 function ResumeCard({ onEmailChange }: { onEmailChange: (email: string) => void }) {
+  const { contact } = useProfile();
   const [visitor, setVisitor] = useState<Visitor | null>(() => {
     const saved = readStorage(RESUME_KEY);
     try {
@@ -230,7 +232,7 @@ function ResumeCard({ onEmailChange }: { onEmailChange: (email: string) => void 
     setVisitor(saved);
     setJustDownloaded(true);
     setStatus("idle");
-    triggerResumeDownload();
+    triggerResumeDownload(contact);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -249,7 +251,7 @@ function ResumeCard({ onEmailChange }: { onEmailChange: (email: string) => void 
             ? "Your download has started. If nothing happened, use the button below. I'll be in touch."
             : "The resume is yours whenever you need it."}
         </p>
-        <button className="resume-form__submit" onClick={triggerResumeDownload} type="button">
+        <button className="resume-form__submit" onClick={() => triggerResumeDownload(contact)} type="button">
           Download resume <span aria-hidden="true">↓</span>
         </button>
         <button
@@ -371,6 +373,7 @@ function ResumeCard({ onEmailChange }: { onEmailChange: (email: string) => void 
 /* ---------------- Section ---------------- */
 
 export function ContactSection() {
+  const profile = useProfile();
   const localTime = useLocalTime(profile.timeZone);
   const [visitorEmail, setVisitorEmail] = useState("");
 

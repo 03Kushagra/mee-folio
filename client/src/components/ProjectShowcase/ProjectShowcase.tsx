@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { FakeScreen } from "./FakeScreen";
 import { ImageLightbox } from "./ImageLightbox";
 import { ProjectNav } from "./ProjectNav";
-import { useProjects, type Project } from "./projectsData";
+import { useProjects, type Project, type ProjectsStatus } from "./projectsData";
 import "./screens.css";
 import "./ProjectShowcase.css";
 
@@ -65,7 +65,28 @@ function StackUsage({
  * to them; the selected frame opens full size on click.
  */
 export function ProjectShowcase() {
-  const projects = useProjects();
+  const { projects, status } = useProjects();
+  if (projects.length === 0) return <ProjectsEmpty status={status} />;
+  return <ProjectCanvas projects={projects} />;
+}
+
+function ProjectsEmpty({ status }: { status: ProjectsStatus }) {
+  return (
+    <div className="projects-empty">
+      <p className="eyebrow">Work</p>
+      <h2>Projects</h2>
+      <p>
+        {status === "loading"
+          ? "Loading projects…"
+          : status === "error"
+            ? "Projects couldn't be loaded right now. Please check back soon."
+            : "New projects are on their way."}
+      </p>
+    </div>
+  );
+}
+
+function ProjectCanvas({ projects }: { projects: Project[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [projectIndex, setProjectIndex] = useState(0);
@@ -240,18 +261,7 @@ export function ProjectShowcase() {
                     ))
                   : null}
               </div>
-              <div className="canvas__links">
-                <a aria-label="GitHub" href={project.githubUrl} rel="noreferrer" target="_blank">
-                  <svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                  </svg>
-                  <span className="canvas__link-text">GitHub</span>
-                </a>
-                <a className="canvas__links-demo" href={project.demoUrl} rel="noreferrer" target="_blank">
-                  <span className="canvas__link-text">Live demo</span>
-                  <span className="canvas__link-short">Demo</span> <span aria-hidden="true">↗</span>
-                </a>
-              </div>
+              <ProjectLinks project={project} />
             </div>
           </div>
 
@@ -333,3 +343,75 @@ export function ProjectShowcase() {
     </div>
   );
 }
+
+const GITHUB_ICON = (
+  <svg aria-hidden="true" height="14" viewBox="0 0 16 16" width="14">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+  </svg>
+);
+
+const POLICY_NOTE = "Not allowed as per company policy";
+
+/**
+ * GitHub + Live demo buttons. On a private (company) project each one can be locked on its own:
+ * a locked button is greyed out and explains why on hover, focus or click.
+ */
+function ProjectLinks({ project }: { project: Project }) {
+  const [showNote, setShowNote] = useState(false);
+  const noteId = useId();
+  const githubLocked = project.isPrivate && project.lockGithub;
+  const demoLocked = project.isPrivate && project.lockDemo;
+
+  const locked = {
+    "aria-describedby": noteId,
+    "aria-disabled": true,
+    onBlur: () => setShowNote(false),
+    onClick: () => setShowNote(true),
+    onFocus: () => setShowNote(true),
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowNote(false);
+    },
+    onMouseEnter: () => setShowNote(true),
+    onMouseLeave: () => setShowNote(false),
+    type: "button" as const,
+  };
+
+  return (
+    <div className="canvas__links">
+      {githubLocked ? (
+        <button aria-label="GitHub (not available)" className="canvas__locked" {...locked}>
+          {GITHUB_ICON}
+          <span className="canvas__link-text">GitHub</span>
+        </button>
+      ) : (
+        <a aria-label="GitHub" href={project.githubUrl} rel="noreferrer" target="_blank">
+          {GITHUB_ICON}
+          <span className="canvas__link-text">GitHub</span>
+        </a>
+      )}
+      {demoLocked ? (
+        <button aria-label="Live demo (not available)" className="canvas__links-demo canvas__locked" {...locked}>
+          <span className="canvas__link-text">Live demo</span>
+          <span className="canvas__link-short">Demo</span>
+          {LOCK_ICON}
+        </button>
+      ) : (
+        <a className="canvas__links-demo" href={project.demoUrl} rel="noreferrer" target="_blank">
+          <span className="canvas__link-text">Live demo</span>
+          <span className="canvas__link-short">Demo</span> <span aria-hidden="true">↗</span>
+        </a>
+      )}
+      {(githubLocked || demoLocked) && (
+        <span className={showNote ? "canvas__policy canvas__policy--visible" : "canvas__policy"} id={noteId} role="tooltip">
+          {POLICY_NOTE}
+        </span>
+      )}
+    </div>
+  );
+}
+
+const LOCK_ICON = (
+  <svg aria-hidden="true" className="canvas__lock" height="11" viewBox="0 0 16 16" width="11">
+    <path d="M4 7V5a4 4 0 1 1 8 0v2h1a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1zm2 0h4V5a2 2 0 1 0-4 0v2z" />
+  </svg>
+);

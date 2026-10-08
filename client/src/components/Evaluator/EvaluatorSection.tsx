@@ -6,7 +6,7 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { profile } from "../../content/profile";
+import { useProfile } from "../../content/ProfileContext";
 import "./EvaluatorSection.css";
 
 type Verdict = "pass" | "warn" | "fail";
@@ -275,7 +275,7 @@ function ReviewConsole() {
 }
 
 export function EvaluatorSection() {
-  const { evaluator } = profile;
+  const { evaluator } = useProfile();
 
   return (
     <div className="evaluator">

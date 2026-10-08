@@ -61,23 +61,23 @@
 .lens-panel {
   position: absolute;
   z-index: 150;
-  bottom: 40px;
-  left: 48px;
-  width: 330px;
+  bottom: 32px;
+  left: 40px;
+  width: 260px;
   overflow: hidden;
   border: 1px solid #d6dbe5;
   border-radius: 12px;
   background: rgb(255 255 255 / 94%);
   box-shadow: 0 20px 40px -24px rgb(23 32 51 / 35%);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   pointer-events: none;
 }
 
 .lens-panel__tabs {
   display: flex;
   gap: 1rem;
-  padding: 0.5rem 0.8rem;
+  padding: 0.35rem 0.7rem;
   border-bottom: 1px solid #e1e5ec;
   color: #8a92a6;
   background: #f4f6fa;
@@ -89,14 +89,14 @@
 }
 
 .lens-panel__body {
-  padding: 0.6rem 0.8rem 0.7rem;
+  padding: 0.45rem 0.7rem 0.5rem;
 }
 
 .lens-panel p {
   max-width: none;
   margin: 0;
   overflow: hidden;
-  line-height: 1.6;
+  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -106,7 +106,7 @@
 }
 
 .lens-panel__line {
-  padding-left: 1rem;
+  padding-left: 0.8rem;
   border-radius: 3px;
   transition: background-color 600ms ease;
 }

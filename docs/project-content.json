@@ -1,0 +1,144 @@
+[
+  {
+    "match": "digit ?money",
+    "title": "DigitMoney — Loan Marketplace & CRM",
+    "order": 1,
+    "isPrivate": true,
+    "lockGithub": true,
+    "lockDemo": true,
+    "description": "A fintech platform that matches borrowers with personal and business loan offers from partner lenders, backed by a CRM the operations team runs every day. Customers check pre-approved offers through a step-by-step application; agents and managers work leads, follow-ups, campaigns and disbursements in the admin panel.",
+    "usp": "One application, many lenders: each customer is routed to the partners whose rules they match, while microservices handle lender integrations, messaging, reporting and short tracking links behind the scenes.",
+    "techStack": [
+      "React",
+      "TypeScript",
+      "Redux Toolkit",
+      "Tailwind CSS",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "RabbitMQ",
+      "AWS S3",
+      "Fastify + Redis"
+    ],
+    "stackUsage": {
+      "React": "The customer site: multi-step loan applications with OTP verification, offer checks and lender-specific journeys, plus the admin panel.",
+      "TypeScript": "The admin panel: dashboards for agents and managers, lead management, lender rules, campaigns, disbursements, bulk SMS and IVR.",
+      "Redux Toolkit": "Shared state for the application flow and the admin's leads, filters and dashboards.",
+      "Tailwind CSS": "The admin UI, with TanStack tables for large lead lists and FullCalendar for follow-ups.",
+      "Node.js": "A set of focused services: core (users, leads, files), loan, alliance (lender partner APIs), messaging and reporting.",
+      "Express": "REST APIs for each service with JWT auth and Swagger docs, clustered across CPU cores with throng.",
+      "MongoDB": "Leads, customers, applications, lender rules and campaign data via Mongoose.",
+      "RabbitMQ": "Queues between services, so lender calls, messages and reports run in the background without slowing the customer.",
+      "AWS S3": "Customer document uploads, virus-scanned with ClamAV before they're stored.",
+      "Fastify + Redis": "A fast URL shortener for SMS and campaign links, with Redis caching and bot filtering for accurate click tracking."
+    },
+    "githubUrl": "",
+    "liveUrl": ""
+  },
+  {
+    "match": "atmaling",
+    "title": "Atmaling — Storefront & Admin Panel",
+    "order": 2,
+    "isPrivate": true,
+    "lockGithub": true,
+    "lockDemo": true,
+    "description": "A mobile-first shop for festival idol bookings, plus the dashboard the shop runs it from. Customers browse the catalogue, build a cart, share it on WhatsApp and book without paying online; the team confirms each booking from the admin panel.",
+    "usp": "Built around how the shop really sells: no forced sign-up and no payment gateway. Carts are shared as images on WhatsApp, re-priced live when opened, and bookings move through a status flow that refuses illegal jumps.",
+    "techStack": [
+      "Next.js",
+      "React",
+      "Vite",
+      "Express",
+      "MongoDB",
+      "Firebase Auth",
+      "Zustand",
+      "Tailwind CSS",
+      "Turborepo",
+      "sharp"
+    ],
+    "stackUsage": {
+      "Next.js": "The storefront: mobile-first, SEO-friendly pages for categories, products, the cart and shared carts that open at /c/CODE.",
+      "React": "Component UI for both apps, sharing the same patterns across the shop and the dashboard.",
+      "Vite": "Builds the admin dashboard: bookings with a status flow, a demand report of what's sitting unbooked in carts, products, categories, customers and live shop settings.",
+      "Express": "The core API, layered as routes → handlers → helpers → models, with helmet, rate limiting, cookie sessions and Swagger docs.",
+      "MongoDB": "Catalogue, carts, bookings and users with Mongoose; an aggregation over live carts powers \"4 people have this in their cart\".",
+      "Firebase Auth": "Only sends the phone OTP. The server verifies Firebase's token, then issues its own 30-day HttpOnly session, so no customer data lives in Firebase.",
+      "Zustand": "Cart and UI state in the storefront and dashboard, including the guest cart that merges into the account cart on login.",
+      "Tailwind CSS": "Shared theme tokens so the light storefront and dark dashboard come from one design system.",
+      "Turborepo": "Monorepo that builds both apps and the API together, with shared packages for the response envelope, money helpers and config.",
+      "sharp": "Resizes uploaded product photos before they're stored on S3-compatible storage."
+    },
+    "githubUrl": "https://github.com/03Kushagra/atmaling-store",
+    "liveUrl": ""
+  },
+  {
+    "match": "ocr",
+    "title": "BillOCR — Bill Scanning & Inventory",
+    "order": 3,
+    "isPrivate": true,
+    "lockGithub": true,
+    "lockDemo": true,
+    "description": "Upload a photo or PDF of a supplier bill and get a reviewed purchase record. An AI vision model reads the bill, the app matches suppliers and products, flags price changes, and updates stock, price history and GST reports.",
+    "usp": "The clever part isn't the OCR, it's the reconciliation: it knows \"S/F MARIE LITE 200\" and \"Sunfeast Marie Light 200gm\" are the same product, and only asks you to review the rows it's unsure about.",
+    "techStack": [
+      "Next.js",
+      "TypeScript",
+      "Claude API",
+      "MongoDB",
+      "Zod",
+      "Tailwind CSS",
+      "Cloudflare R2",
+      "JWT (jose)",
+      "Excel export"
+    ],
+    "stackUsage": {
+      "Next.js": "App Router for the screens (upload, line-by-line review, products, suppliers, reports) and API routes for bills, imports and reports, deployed as one app.",
+      "TypeScript": "End-to-end types from the extraction schema through matching, pricing and reports.",
+      "Claude API": "Vision extraction that reads bill photos and PDFs natively, including handwriting and messy tables, into structured JSON.",
+      "MongoDB": "Products, name aliases, suppliers, bills, payments and price history; aggregations drive the stock, purchase, HSN and ITC reports.",
+      "Zod": "One schema validates the model's structured output and every database write.",
+      "Tailwind CSS": "Dense data tables and the review screen where uncertain rows are confirmed.",
+      "Cloudflare R2": "Stores the original bill files through signed upload URLs, with a hand-written SigV4 signer instead of a heavy SDK.",
+      "JWT (jose)": "Signed session cookie for the single-user login, checked in middleware before any page or API loads.",
+      "Excel export": "Imports the existing product catalogue and exports bills in the Hitech accounting format with a zero-dependency XLSX reader and writer."
+    },
+    "githubUrl": "https://github.com/03Kushagra/billocr",
+    "liveUrl": ""
+  },
+  {
+    "match": "hay ?day",
+    "title": "Hay Day Trading",
+    "order": 4,
+    "isPrivate": false,
+    "lockGithub": true,
+    "lockDemo": true,
+    "description": "A browser-based image generator for Hay Day players. Build Buy/Sell sheets and ratio-based trade listings with live price maths, style them, and copy a polished image straight into Discord.",
+    "usp": "Turns a messy trade post into a share-ready image in seconds: live price and ratio maths, reusable sheets, and everything saved in the browser with no sign-up.",
+    "techStack": [
+      "JavaScript",
+      "jQuery",
+      "CSS",
+      "html-to-image",
+      "fuzzysort",
+      "math.js",
+      "Service Worker",
+      "localStorage"
+    ],
+    "stackUsage": {
+      "JavaScript": "All app logic in plain modules (items, settings, persistence, overlays): listings, multi-item trades, selection modes and price and ratio calculations, with no build step.",
+      "jQuery": "DOM updates and event handling across the editor, sheet switcher and styling drawer.",
+      "CSS": "Responsive layout with a fixed styling drawer on desktop and an overlay on mobile, plus gradient, palette and text-style controls for the generated image.",
+      "html-to-image": "Renders the listing to a PNG and writes it straight to the clipboard, falling back to a saveable image if clipboard access fails.",
+      "fuzzysort": "Fuzzy item autocomplete with custom abbreviations, so typing \"bem\" finds \"BEM Set\".",
+      "math.js": "Safe evaluation of price expressions, totals and trade ratios like 60:89.",
+      "Service Worker": "Caches product images and Hay Day Wiki responses so repeat visits load fast.",
+      "localStorage": "Keeps sheets, trade rows, styling and preferences between visits, with JSON export and import for backups."
+    },
+    "githubUrl": "https://github.com/03Kushagra/hayday-trading",
+    "liveUrl": "",
+    "featuredImageUrl": "/images/projects/hayday-buy-sell.png",
+    "imageUrls": [
+      "/images/projects/hayday-trade.png"
+    ]
+  }
+]

@@ -1,15 +1,16 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState, type CSSProperties } from "react";
-import { profile } from "../../content/profile";
+import { useProfile } from "../../content/ProfileContext";
 import { ACCENTS, duration, formatMonth, SectionHeading } from "./shared";
 import "./Experience.css";
 
 /**
  * Experience section: a metro line. Each role is a station (oldest on the left), the line
- * changes colour per role, the current role pulses "You are here", and a dotted
+ * changes colour per role, the current role pulses "Current", and a dotted
  * extension points to the next stop.
  */
 export function ExperienceSection() {
+  const profile = useProfile();
   // Oldest first, so the line reads left to right through time.
   const stations = [...profile.experience].reverse();
   const [selected, setSelected] = useState(stations.length - 1);
@@ -43,7 +44,7 @@ export function ExperienceSection() {
                   <span className="xs-m__name">{station.company}</span>
                   <span aria-hidden="true" className={isCurrent ? "xs-m__dot xs-m__dot--current" : "xs-m__dot"} />
                   <span className="xs-m__when">{formatMonth(station.start).split(" ")[1]}</span>
-                  {isCurrent ? <span className="xs-m__here">You are here</span> : null}
+                  {isCurrent ? <span className="xs-m__here">Current</span> : null}
                 </button>
               </li>
             );
@@ -76,10 +77,17 @@ export function ExperienceSection() {
                 {role.company} · {role.type} · {role.location}
               </p>
             </div>
-            <span className="xs-m__time">
-              {formatMonth(role.start)} – {formatMonth(role.end)}
-              <small>{duration(role.start, role.end)}</small>
-            </span>
+            <div className="xs-m__corner">
+              {role.end === null && profile.noticePeriod && (
+                <span className="xs-m__notice">
+                  Notice period <strong>{profile.noticePeriod}</strong>
+                </span>
+              )}
+              <span className="xs-m__time">
+                {formatMonth(role.start)} – {formatMonth(role.end)}
+                <small>{duration(role.start, role.end)}</small>
+              </span>
+            </div>
           </div>
           <ul className="xs-m__highlights">
             {role.highlights.map((highlight) => (

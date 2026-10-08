@@ -12,6 +12,12 @@ const projectSchema = new Schema(
       required: true,
       trim: true,
     },
+    // One line on what makes the project stand out (shown under the description).
+    usp: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     techStack: {
       type: [String],
       default: [],
@@ -50,6 +56,20 @@ const projectSchema = new Schema(
       type: String,
       default: "",
       trim: true,
+    },
+    // Company / client work: the site hides the GitHub and demo links and explains why.
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
+    // On a private project, lock each link separately (both locked by default).
+    lockGithub: {
+      type: Boolean,
+      default: true,
+    },
+    lockDemo: {
+      type: Boolean,
+      default: true,
     },
     featured: {
       type: Boolean,

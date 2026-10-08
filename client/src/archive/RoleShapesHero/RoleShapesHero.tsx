@@ -1,7 +1,16 @@
 import { useEffect, useRef } from "react";
-import { RoleBoard, roles } from "../../components/RoleBoard/RoleBoard";
+import { RoleBoard, toRoleCards } from "../../components/RoleBoard/RoleBoard";
 import { startCanvasLoop, toneColors } from "../../lib/canvasLoop";
 import "./RoleShapesHero.css";
+
+// This archived hero draws a picture per role, so it keeps its own fixed list of roles.
+const roles = toRoleCards([
+  { label: "AI Code Evaluator", tone: "purple" },
+  { label: "Frontend Engineer", tone: "blue" },
+  { label: "Full-stack Developer", tone: "orange" },
+  { label: "Creative Technologist", tone: "teal" },
+  { label: "Product-minded Engineer", tone: "yellow" },
+]);
 
 type Tone = 0 | 1 | 2; // base, danger, success
 
@@ -333,7 +342,7 @@ const shapes: Record<string, Shape> = {
     },
     mode: "network",
   },
-  "product-engineer": {
+  "product-minded-engineer": {
     // A growth chart: axes with ticks, bars, a trend line with markers and the headline number.
     draw(context, width, height) {
       const left = width * 0.08;
@@ -685,6 +694,7 @@ export function RoleShapesHero() {
       </div>
       <RoleBoard
         interactive={false}
+        roles={roles}
         onFrontRoleChange={(roleId) => setRoleRef.current?.(roleId)}
       />
     </div>

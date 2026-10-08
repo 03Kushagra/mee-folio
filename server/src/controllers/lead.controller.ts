@@ -68,3 +68,13 @@ export async function createLead(request: Request, response: Response) {
     response.status(500).json({ message: "Failed to save your details" });
   }
 }
+
+export async function listLeads(_request: Request, response: Response) {
+  try {
+    const leads = await Lead.find().sort({ createdAt: -1 }).limit(1000).lean();
+    response.json({ data: leads });
+  } catch (error) {
+    console.error("Failed to load leads:", error);
+    response.status(500).json({ message: "Failed to load leads" });
+  }
+}

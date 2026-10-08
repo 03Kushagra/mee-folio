@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { rectInSection, startCanvasLoop } from "../../lib/canvasLoop";
-import { RoleBoard } from "../RoleBoard/RoleBoard";
+import { useProfile } from "../../content/ProfileContext";
+import { RoleBoard, toRoleCards } from "../RoleBoard/RoleBoard";
 import "./BlueprintHero.css";
 
 const LENS_RADIUS = 190;
@@ -84,13 +85,7 @@ function readTopCardStyles(section: HTMLElement): Array<[string, string]> {
   const shadow = style.boxShadow.replace(/rgba?\([^)]+\)\s*/g, "").trim();
   return [
     ["selector", `button.${[...card.classList].slice(0, 2).join(".")}`],
-    ["width", `${Math.round(card.offsetWidth)}px`],
-    ["height", `${Math.round(card.offsetHeight)}px`],
-    ["padding", style.padding],
-    ["border-radius", style.borderRadius],
     ["border-left", `${style.borderLeftWidth} solid ${style.borderLeftColor}`],
-    ["font-size", style.fontSize],
-    ["font-weight", style.fontWeight],
     ["box-shadow", shadow.split(",")[0] ?? shadow],
     ["transform", `rotate(${rotationOf(style.transform)}deg)`],
     ["z-index", style.zIndex],
@@ -130,7 +125,7 @@ type Note = { text: string; u: number; v: number; du: number; dv: number };
 // Hidden annotations that only show up through the lens.
 const NOTES: Note[] = [
   { du: 0.04, dv: -0.06, text: "toolbar · 52px · hides on scroll ↓", u: 0.07, v: 0.3 },
-  { du: 0.06, dv: -0.07, text: "anchor → 5 roles, swaps every 5s", u: 0.09, v: 0.66 },
+  { du: 0.06, dv: -0.07, text: "anchor → role cards, swaps every 5s", u: 0.09, v: 0.66 },
   { du: 0.05, dv: 0.06, text: "easing: cubic-bezier(.22, 1, .36, 1)", u: 0.43, v: 0.24 },
   { du: -0.05, dv: -0.06, text: "card shadow: 0 12px 28px / 13%", u: 0.6, v: 0.72 },
   { du: 0.04, dv: 0.05, text: "React 19 · TypeScript · Vite", u: 0.78, v: 0.16 },
@@ -331,6 +326,9 @@ function drawBlueprintScene(
  * blueprint of the page underneath.
  */
 export function BlueprintHero() {
+  const { heroRoles } = useProfile();
+  const roles = useMemo(() => toRoleCards(heroRoles), [heroRoles]);
+  const rolesKey = roles.map((role) => `${role.id}:${role.tone}`).join("|");
   const sectionRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
@@ -420,7 +418,6 @@ export function BlueprintHero() {
     const lens = { presence: 0, x: 0, y: 0 };
     let clock = 0;
     let wasActive = false;
-    let inactiveFor = Number.POSITIVE_INFINITY;
     let frames = 0;
     let fpsClock = 0;
 
@@ -448,20 +445,12 @@ export function BlueprintHero() {
 
         // Lens behaviour:
         // - follows the cursor;
-        // - when the cursor leaves, it shrinks away where it is (no sliding across the page);
-        // - after a moment with no cursor it reappears, resting on the top card;
+        // - when the cursor leaves, it shrinks away where it is and stays hidden;
         // - when the cursor comes back while the lens is hidden, it appears right under it.
-        // Rest spot is anchored to the "I am a" box, which never moves, so the
-        // lens stays still while the cards cycle.
-        const anchorBox = boxes.find((box) => box.label.includes("anchor"));
-        const restX = anchorBox
-          ? Math.min(width - 40, anchorBox.x + anchorBox.width + Math.min(180, width * 0.14))
-          : width / 2;
-        const restY = anchorBox ? anchorBox.y + anchorBox.height / 2 : height / 2;
         let targetX = lens.x;
         let targetY = lens.y;
-        let targetPresence = 1;
-        let followRate = 18;
+        let targetPresence = 0;
+        const followRate = 18;
 
         if (pointer.active) {
           if (!wasActive && lens.presence < 0.4) {
@@ -470,20 +459,7 @@ export function BlueprintHero() {
           }
           targetX = pointer.x;
           targetY = pointer.y;
-          inactiveFor = 0;
-        } else {
-          inactiveFor += delta;
-          if (inactiveFor < 1.4) {
-            targetPresence = 0;
-          } else {
-            if (lens.presence < 0.05) {
-              lens.x = restX;
-              lens.y = restY;
-            }
-            targetX = restX;
-            targetY = restY;
-            followRate = 2.5;
-          }
+          targetPresence = 1;
         }
         wasActive = pointer.active;
 
@@ -641,7 +617,7 @@ export function BlueprintHero() {
         <canvas ref={backgroundRef} />
       </div>
 
-      <RoleBoard interactive={false} />
+      <RoleBoard interactive={false} key={rolesKey} roles={roles} />
 
       <div aria-hidden="true" className="blueprint-hero__overlay">
         <canvas ref={overlayRef} />

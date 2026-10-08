@@ -6,11 +6,13 @@ import {
   getProjects,
   updateProject,
 } from "../controllers/project.controller.js";
+import { requireAdmin } from "../lib/auth.js";
 
 export const projectRouter = Router();
 
 projectRouter.get("/", getProjects);
 projectRouter.get("/:id", getProjectById);
-projectRouter.post("/", createProject);
-projectRouter.put("/:id", updateProject);
-projectRouter.delete("/:id", deleteProject);
+// Changes need the admin login.
+projectRouter.post("/", requireAdmin, createProject);
+projectRouter.put("/:id", requireAdmin, updateProject);
+projectRouter.delete("/:id", requireAdmin, deleteProject);

@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { createLead } from "../controllers/lead.controller.js";
+import { createLead, listLeads } from "../controllers/lead.controller.js";
+import { requireAdmin } from "../lib/auth.js";
 
 export const leadRouter = Router();
 
-// Intentionally no public GET: view leads in your MongoDB dashboard.
 leadRouter.post("/", createLead);
+// Only the admin page can read the list.
+leadRouter.get("/", requireAdmin, listLeads);
