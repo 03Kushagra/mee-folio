@@ -41,3 +41,21 @@ npm run seed:profile --workspace server
 
 Images and the resume are referenced by URL: put files in `client/public/` (e.g. `/images/me.jpg`, `/resume.pdf`) or paste any link.
 
+
+## Deploying (Vercel)
+
+`vercel.json` deploys the whole repo as one Vercel project: the client is served as a static site
+and the Express API runs as a serverless function (`api/index.mjs`). Any path that isn't a file
+(like `/admin`) falls back to `index.html`.
+
+1. In Vercel → Project → Settings → General, leave **Root Directory** empty (the repo root).
+2. In Settings → Environment Variables add `MONGODB_URI` (a MongoDB Atlas connection string; the
+   live site can't reach the database on your computer) and `ADMIN_PASSWORD` (no quotes needed there).
+   In Atlas → Network Access, allow `0.0.0.0/0`.
+3. Copy your local content up to Atlas once:
+
+   ```bash
+   npm run db:copy --workspace server -- "mongodb+srv://user:pass@cluster.mongodb.net/mee-folio"
+   ```
+
+4. Redeploy. After that, edit content at `https://<your-site>/admin`; it saves straight to Atlas.

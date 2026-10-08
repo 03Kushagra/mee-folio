@@ -9,6 +9,9 @@ import { projectRouter } from "./routes/project.routes.js";
 
 export const app = express();
 
+// Behind a host's proxy (Vercel, Render…), read the visitor's real IP for rate limiting.
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: env.clientOrigin,
